@@ -55,8 +55,7 @@
 #define IDS_CHK_FILTER_SHORTCUT         272
 #define IDS_CHK_FILTER_CONFIRM          273
 #define IDS_CHK_FILTER_SOUND            274
-#define IDS_CHK_FILTER_STATUS           275
-#define IDS_CHK_FILTER_CLICK            276
+#define IDS_CHK_FILTER_CLICK            275
 #define IDS_MSG_INVALID_NUMBER          300
 #define IDS_MSG_ESC_HOTKEY_CONFLICT     301
 #define IDS_MSG_PRESET_SAVED            302
@@ -189,8 +188,7 @@
 #define IDC_CHECK_FILTER_SHORTCUT       1139
 #define IDC_CHECK_FILTER_CONFIRM        1140
 #define IDC_CHECK_FILTER_SOUND          1141
-#define IDC_CHECK_FILTER_STATUS         1142
-#define IDC_CHECK_FILTER_CLICK          1143
+#define IDC_CHECK_FILTER_CLICK          1142
 #define IDM_TRAY_OPEN                   50001
 #define IDM_TRAY_EXIT                   50002
 #define IDM_TRAY_PRESET_BASE            50100
@@ -201,7 +199,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        138
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1144
+#define _APS_NEXT_CONTROL_VALUE         1143
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

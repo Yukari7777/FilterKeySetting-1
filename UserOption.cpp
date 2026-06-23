@@ -45,6 +45,11 @@ bool InitializeOptionValues()
     res &= GLOBAL_OPTION.setInit(KEY_FILTERKEY_BACKUP_REPEAT, static_cast<DWORD>(DEFAULT_REPEAT_RATE));
     res &= GLOBAL_OPTION.setInit(KEY_FILTERKEY_BACKUP_FLAGS, WINDOW_FILTER_FLAGS);
     res &= GLOBAL_OPTION.setInit(KEY_LANGUAGE, static_cast<DWORD>(Lang::DetectSystemDefault()));
+
+    const DWORD active_filter_flags =
+        GLOBAL_OPTION.getInteger(KEY_ACTIVE_FILTER_FLAGS, DEFAULT_ACTIVE_FILTER_FLAGS) &
+        ACTIVE_FILTER_OPTION_FLAGS;
+    res &= GLOBAL_OPTION.set(KEY_ACTIVE_FILTER_FLAGS, active_filter_flags);
   }
 
   // Preset Generator

@@ -12,3 +12,6 @@ Additional presets can be enabled from the debug options.
 The FilterKeys flag panel applies one shared flag configuration to every ON preset.
 Changing a checkbox immediately reapplies the active preset while preserving its delay values.
 New installations enable only `Available`; the program adds the required `On` flag while an ON preset is active.
+
+Modern Windows displays its accessibility icon whenever Filter Keys is active.
+The legacy `FKF_INDICATOR` flag does not control that taskbar icon, so it is not exposed by the application.

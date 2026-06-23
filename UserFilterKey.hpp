@@ -10,7 +10,7 @@ class FilterKey
   static DWORD GetActiveFilterFlags()
   {
     return GLOBAL_OPTION.getInteger(KEY_ACTIVE_FILTER_FLAGS, DEFAULT_ACTIVE_FILTER_FLAGS) &
-           FILTERKEY_OPTION_FLAGS;
+           ACTIVE_FILTER_OPTION_FLAGS;
   }
 
   // Backup
