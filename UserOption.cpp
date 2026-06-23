@@ -35,14 +35,15 @@ bool InitializeOptionValues()
     res &= GLOBAL_OPTION.setInit(KEY_PRESET_OSD_ALPHA, 220);
     res &= GLOBAL_OPTION.setInit(KEY_PRESET_OSD_KEEP_VISIBLE, false);
     res &= GLOBAL_OPTION.setInit(KEY_PRESET_OSD_SIZE, 5);
-    res &= GLOBAL_OPTION.setInit(KEY_PRESET_COUNT, 3);
+    res &= GLOBAL_OPTION.setInit(KEY_PRESET_COUNT, PRESET_MIN_COUNT);
+    res &= GLOBAL_OPTION.setInit(KEY_ACTIVE_FILTER_FLAGS, DEFAULT_ACTIVE_FILTER_FLAGS);
     res &= GLOBAL_OPTION.setInit(KEY_LAST_PRESET, false);
     res &= GLOBAL_OPTION.setInit(KEY_OFF_USE_WINDOWS_DEFAULT, true);
     res &= GLOBAL_OPTION.setInit(KEY_FILTERKEY_BACKUP_VALID, false);
     res &= GLOBAL_OPTION.setInit(KEY_FILTERKEY_BACKUP_WAIT, static_cast<DWORD>(DEFAULT_ACCEPT_DELAY));
     res &= GLOBAL_OPTION.setInit(KEY_FILTERKEY_BACKUP_DELAY, static_cast<DWORD>(DEFAULT_REPEAT_DELAY));
     res &= GLOBAL_OPTION.setInit(KEY_FILTERKEY_BACKUP_REPEAT, static_cast<DWORD>(DEFAULT_REPEAT_RATE));
-    res &= GLOBAL_OPTION.setInit(KEY_FILTERKEY_BACKUP_FLAGS, static_cast<DWORD>(WINDOW_FILTER_FLAG));
+    res &= GLOBAL_OPTION.setInit(KEY_FILTERKEY_BACKUP_FLAGS, WINDOW_FILTER_FLAGS);
     res &= GLOBAL_OPTION.setInit(KEY_LANGUAGE, static_cast<DWORD>(Lang::DetectSystemDefault()));
   }
 
@@ -54,8 +55,7 @@ bool InitializeOptionValues()
   };
 
   const auto InitPreset = [&](int preset_number, const CString& title,
-                              DWORD repeat_delay, DWORD repeat_rate,
-                              DWORD filter_flag) {
+                              DWORD repeat_delay, DWORD repeat_rate) {
     if (auto preset = GetPreset(preset_number); preset)
     {
       res &= preset->setInit(KEY_PRESET_TITLE, title);
@@ -63,17 +63,16 @@ bool InitializeOptionValues()
       res &= preset->setInit(KEY_ACCEPT_DELAY, 0);
       res &= preset->setInit(KEY_REPEAT_DELAY, repeat_delay);
       res &= preset->setInit(KEY_REPEAT_RATE, repeat_rate);
-      res &= preset->setInit(KEY_FILTER_FLAG, filter_flag);
     }
   };
 
-  InitPreset(PRESET_OFF, Lang::T(IDS_PRESET_NAME_OFF), 500, 33, WINDOW_FILTER_FLAG);    // Rename Preset OFF
-  InitPreset(PRESET_OFF + 1, Lang::T(IDS_PRESET_NAME_ON), 90, 14, CUSTOM_FILTER_FLAG);  // Rename Default Preset
+  InitPreset(PRESET_OFF, Lang::T(IDS_PRESET_NAME_OFF), 500, 33);    // Rename Preset OFF
+  InitPreset(PRESET_OFF + 1, Lang::T(IDS_PRESET_NAME_ON), 90, 14);  // Rename Default Preset
   for (int preset_number = 2; preset_number < PRESET_MAX_COUNT; ++preset_number)
   {
     CString title;
     title.Format(Lang::T(IDS_FMT_PRESET_DEFAULT_NAME), preset_number);
-    InitPreset(preset_number, title, 500, 33, CUSTOM_FILTER_FLAG);
+    InitPreset(preset_number, title, 500, 33);
   }
 
   return res;

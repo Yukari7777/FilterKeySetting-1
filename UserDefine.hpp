@@ -30,6 +30,7 @@
 #define KEY_PRESET_OSD_KEEP_VISIBLE       (_T("preset_osd_keep_visible"))
 #define KEY_PRESET_OSD_SIZE               (_T("preset_osd_size"))
 #define KEY_PRESET_COUNT                  (_T("preset_count"))
+#define KEY_ACTIVE_FILTER_FLAGS           (_T("active_filter_flags"))
 #define KEY_LAST_PRESET                   (_T("last_preset_number"))
 #define KEY_OFF_USE_WINDOWS_DEFAULT       (_T("off_use_windows_default"))
 #define KEY_FILTERKEY_BACKUP_VALID        (_T("filterkey_backup_valid"))
@@ -45,14 +46,24 @@
 #define KEY_ACCEPT_DELAY  (_T("accept_delay"))
 #define KEY_REPEAT_DELAY  (_T("repeat_delay"))
 #define KEY_REPEAT_RATE   (_T("repeat_rate"))
-#define KEY_FILTER_FLAG   (_T("filter_flags"))
 
 // FilterKey defaults
 #define DEFAULT_ACCEPT_DELAY (1000)
 #define DEFAULT_REPEAT_DELAY (1000)
 #define DEFAULT_REPEAT_RATE  (500)
-#define WINDOW_FILTER_FLAG   (126)
-#define CUSTOM_FILTER_FLAG   (35)
+
+static constexpr DWORD FILTERKEY_OPTION_FLAGS =
+    FKF_AVAILABLE |
+    FKF_HOTKEYACTIVE |
+    FKF_CONFIRMHOTKEY |
+    FKF_HOTKEYSOUND |
+    FKF_INDICATOR |
+    FKF_CLICKON;
+static constexpr DWORD WINDOW_FILTER_FLAGS         = FILTERKEY_OPTION_FLAGS;
+static constexpr DWORD DEFAULT_ACTIVE_FILTER_FLAGS = FKF_AVAILABLE;
+
+static_assert(FILTERKEY_OPTION_FLAGS == 126);
+static_assert((DEFAULT_ACTIVE_FILTER_FLAGS | FKF_FILTERKEYSON) == 3);
 
 // Preset value validation limits
 static constexpr DWORD MAX_ACCEPT_DELAY = 10000;
@@ -61,7 +72,7 @@ static constexpr DWORD MAX_REPEAT_RATE  = 10000;
 
 // Preset constants
 static constexpr int PRESET_OFF       = 0;
-static constexpr int PRESET_MIN_COUNT = 2;
+static constexpr int PRESET_MIN_COUNT = 4;
 static constexpr int PRESET_MAX_COUNT = 10;
 
 static constexpr bool PRESET_IS_OFF(const int preset)

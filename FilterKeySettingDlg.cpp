@@ -24,6 +24,21 @@
 // clang-format on
 
 namespace {
+struct FilterFlagControl
+{
+  UINT  control_id;
+  DWORD flag;
+};
+
+constexpr FilterFlagControl kActiveFilterFlagControls[] = {
+  { IDC_CHECK_FILTER_AVAILABLE, FKF_AVAILABLE },
+  { IDC_CHECK_FILTER_SHORTCUT, FKF_HOTKEYACTIVE },
+  { IDC_CHECK_FILTER_CONFIRM, FKF_CONFIRMHOTKEY },
+  { IDC_CHECK_FILTER_SOUND, FKF_HOTKEYSOUND },
+  { IDC_CHECK_FILTER_STATUS, FKF_INDICATOR },
+  { IDC_CHECK_FILTER_CLICK, FKF_CLICKON },
+};
+
 UINT ModifierMaskForVirtualKey(UINT vk)
 {
   switch (vk)
@@ -151,6 +166,8 @@ ON_BN_CLICKED(IDC_CHECK_ENABLE_KEYBIND, &CFilterKeySettingDlg::OnBnClickedCheckE
 ON_BN_CLICKED(IDC_CHECK_ENABLE_TOGGLE_KEYBIND, &CFilterKeySettingDlg::OnBnClickedCheckEnableToggleKeybind)
 ON_BN_CLICKED(IDC_CHECK_SET_MOUSE_DBLCLICK_TRACKER, &CFilterKeySettingDlg::OnBnClickedCheckSetMouseDblclickTracker)
 ON_BN_CLICKED(IDC_CHECK_DISABLE_WITH_ESC, &CFilterKeySettingDlg::OnBnClickedCheckDisableWithEsc)
+ON_CONTROL_RANGE(BN_CLICKED, IDC_CHECK_FILTER_AVAILABLE, IDC_CHECK_FILTER_CLICK,
+                 &CFilterKeySettingDlg::OnCommandActiveFilterFlag)
 END_MESSAGE_MAP()
 
 // CFilterKeySettingDlg message handlers
@@ -207,6 +224,13 @@ BOOL CFilterKeySettingDlg::OnInitDialog()
     { IDC_CHECK_MOVE_TO_TRAY, IDS_CHK_MOVE_TO_TRAY },
     { IDC_CHECK_ENABLE_KEYBIND, IDS_CHK_ENABLE_KEYBIND },
     { IDC_CHECK_DISABLE_WITH_ESC, IDS_CHK_DISABLE_WITH_ESC },
+    { IDC_GROUP_ACTIVE_FILTER_FLAGS, IDS_GRP_ACTIVE_FILTER_FLAGS },
+    { IDC_CHECK_FILTER_AVAILABLE, IDS_CHK_FILTER_AVAILABLE },
+    { IDC_CHECK_FILTER_SHORTCUT, IDS_CHK_FILTER_SHORTCUT },
+    { IDC_CHECK_FILTER_CONFIRM, IDS_CHK_FILTER_CONFIRM },
+    { IDC_CHECK_FILTER_SOUND, IDS_CHK_FILTER_SOUND },
+    { IDC_CHECK_FILTER_STATUS, IDS_CHK_FILTER_STATUS },
+    { IDC_CHECK_FILTER_CLICK, IDS_CHK_FILTER_CLICK },
   };
   Lang::ApplyControlTexts(this, kMainDlgTexts, _countof(kMainDlgTexts));
 
@@ -1057,6 +1081,31 @@ void CFilterKeySettingDlg::OnBnClickedCheckDisableWithEsc()
   UpdateOption();
 }
 
+void CFilterKeySettingDlg::OnCommandActiveFilterFlag(UINT nID)
+{
+  UNREFERENCED_PARAMETER(nID);
+
+  const DWORD previous_flags = FilterKey::GetActiveFilterFlags();
+  const DWORD next_flags     = ReadActiveFilterFlagsFromUI();
+  if (next_flags == previous_flags)
+    return;
+
+  if (!GLOBAL_OPTION.set(KEY_ACTIVE_FILTER_FLAGS, next_flags))
+  {
+    SyncActiveFilterFlagsToUI(previous_flags);
+    AfxMessageBox(Lang::T(IDS_MSG_REGISTRY_CREATE_FAIL));
+    return;
+  }
+
+  const int current_preset = static_cast<int>(GLOBAL_OPTION.getInteger(KEY_LAST_PRESET));
+  if (PRESET_IS_ON(current_preset) && !FilterKey::ActivatePreset(current_preset))
+  {
+    GLOBAL_OPTION.set(KEY_ACTIVE_FILTER_FLAGS, previous_flags);
+    SyncActiveFilterFlagsToUI(previous_flags);
+    AfxMessageBox(Lang::T(IDS_MSG_FILTER_FLAGS_APPLY_FAILED));
+  }
+}
+
 void CFilterKeySettingDlg::OnEnSetFocusTesting()
 {
   if (auto* ctrl = GetDlgItem(IDC_EDIT_TESTING); ctrl)
@@ -1404,11 +1453,6 @@ void CFilterKeySettingDlg::SyncOptionsFromUI()
     btn          = static_cast<CButton*>(GetDlgItem(IDC_CHECK_DISABLE_HOTKEY));
     auto checked = btn ? btn->GetCheck() : false;
     GLOBAL_OPTION.set(KEY_DISABLE_HOTKEY, static_cast<DWORD>(checked));
-
-    PresetOption option(PRESET_OFF);
-    DWORD        value = checked ? WINDOW_FILTER_FLAG & ~(FKF_HOTKEYACTIVE | FKF_CONFIRMHOTKEY | FKF_HOTKEYSOUND)
-                                 : WINDOW_FILTER_FLAG;
-    option.set(KEY_FILTER_FLAG, value);
   }
 
   {
@@ -1462,12 +1506,36 @@ void CFilterKeySettingDlg::SyncOptionsToUI()
   SetCheck(IDC_CHECK_ENABLE_TOGGLE_KEYBIND, KEY_ENABLE_TOGGLE_KEYBIND);
   SetCheck(IDC_CHECK_SET_MOUSE_DBLCLICK_TRACKER, KEY_ENABLE_MOUSE_DBLCLICK_TRACKER);
   SetCheck(IDC_CHECK_DISABLE_WITH_ESC, KEY_DISABLE_WITH_ESC);
+  SyncActiveFilterFlagsToUI(FilterKey::GetActiveFilterFlags());
 
   if (auto toggle_edit = GetDlgItem(IDC_EDIT_TOGGLE_KEYBIND); toggle_edit)
     toggle_edit->EnableWindow(KeyBinding::IsToggleEnabled() ? TRUE : FALSE);
 
   if (!KeyBinding::IsEnabled())
     alt_hotkey_view_ = false;
+}
+
+DWORD CFilterKeySettingDlg::ReadActiveFilterFlagsFromUI() const
+{
+  DWORD flags = 0;
+  for (const auto& item : kActiveFilterFlagControls)
+  {
+    if (auto* button = static_cast<CButton*>(GetDlgItem(item.control_id));
+        button && button->GetCheck() == BST_CHECKED)
+    {
+      flags |= item.flag;
+    }
+  }
+  return flags;
+}
+
+void CFilterKeySettingDlg::SyncActiveFilterFlagsToUI(DWORD flags)
+{
+  for (const auto& item : kActiveFilterFlagControls)
+  {
+    if (auto* button = static_cast<CButton*>(GetDlgItem(item.control_id)); button)
+      button->SetCheck((flags & item.flag) != 0 ? BST_CHECKED : BST_UNCHECKED);
+  }
 }
 
 void CFilterKeySettingDlg::ApplySubsystemOptions()
@@ -1931,6 +1999,13 @@ void CFilterKeySettingDlg::LayoutDynamicControls()
     IDC_CHECK_DISABLE_WITH_ESC,
     IDC_CHECK_ENABLE_TOGGLE_KEYBIND,
     IDC_EDIT_TOGGLE_KEYBIND,
+    IDC_GROUP_ACTIVE_FILTER_FLAGS,
+    IDC_CHECK_FILTER_AVAILABLE,
+    IDC_CHECK_FILTER_SHORTCUT,
+    IDC_CHECK_FILTER_CONFIRM,
+    IDC_CHECK_FILTER_SOUND,
+    IDC_CHECK_FILTER_STATUS,
+    IDC_CHECK_FILTER_CLICK,
   };
 
   bool  lower_initialized = false;

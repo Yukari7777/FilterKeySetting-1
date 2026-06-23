@@ -7,6 +7,12 @@
 class FilterKey
 {
  public:
+  static DWORD GetActiveFilterFlags()
+  {
+    return GLOBAL_OPTION.getInteger(KEY_ACTIVE_FILTER_FLAGS, DEFAULT_ACTIVE_FILTER_FLAGS) &
+           FILTERKEY_OPTION_FLAGS;
+  }
+
   // Backup
   static bool BackupCurrentFilterKeysToOption()
   {
@@ -47,7 +53,7 @@ class FilterKey
       fk.iWaitMSec   = static_cast<UINT>(GLOBAL_OPTION.getInteger(KEY_FILTERKEY_BACKUP_WAIT, DEFAULT_ACCEPT_DELAY));
       fk.iDelayMSec  = static_cast<UINT>(GLOBAL_OPTION.getInteger(KEY_FILTERKEY_BACKUP_DELAY, DEFAULT_REPEAT_DELAY));
       fk.iRepeatMSec = static_cast<UINT>(GLOBAL_OPTION.getInteger(KEY_FILTERKEY_BACKUP_REPEAT, DEFAULT_REPEAT_RATE));
-      fk.dwFlags     = GLOBAL_OPTION.getInteger(KEY_FILTERKEY_BACKUP_FLAGS, WINDOW_FILTER_FLAG);
+      fk.dwFlags     = GLOBAL_OPTION.getInteger(KEY_FILTERKEY_BACKUP_FLAGS, WINDOW_FILTER_FLAGS);
     }
     else
     {
@@ -55,7 +61,17 @@ class FilterKey
       fk.iWaitMSec   = preset_option.getInteger(KEY_ACCEPT_DELAY, DEFAULT_ACCEPT_DELAY);
       fk.iDelayMSec  = preset_option.getInteger(KEY_REPEAT_DELAY, DEFAULT_REPEAT_DELAY);
       fk.iRepeatMSec = preset_option.getInteger(KEY_REPEAT_RATE, DEFAULT_REPEAT_RATE);
-      fk.dwFlags     = preset_option.getInteger(KEY_FILTER_FLAG);
+
+      if (PRESET_IS_ON(preset))
+      {
+        fk.dwFlags = GetActiveFilterFlags() | FKF_FILTERKEYSON;
+      }
+      else
+      {
+        fk.dwFlags = WINDOW_FILTER_FLAGS;
+        if (GLOBAL_OPTION.getInteger(KEY_DISABLE_HOTKEY, 0) != 0)
+          fk.dwFlags &= ~(FKF_HOTKEYACTIVE | FKF_CONFIRMHOTKEY | FKF_HOTKEYSOUND);
+      }
     }
 
     auto flag = SPIF_UPDATEINIFILE;

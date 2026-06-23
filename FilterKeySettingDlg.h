@@ -60,6 +60,7 @@ class CFilterKeySettingDlg : public CDialogEx
   afx_msg void OnBnClickedCheckEnableToggleKeybind();
   afx_msg void OnBnClickedCheckSetMouseDblclickTracker();
   afx_msg void OnBnClickedCheckDisableWithEsc();
+  afx_msg void OnCommandActiveFilterFlag(UINT nID);
 
   // Focus handlers
   afx_msg void OnEnSetFocusTesting();
@@ -87,6 +88,8 @@ class CFilterKeySettingDlg : public CDialogEx
   void UpdateOption(BOOL write = TRUE);
   void SyncOptionsFromUI();
   void SyncOptionsToUI();
+  DWORD ReadActiveFilterFlagsFromUI() const;
+  void  SyncActiveFilterFlagsToUI(DWORD flags);
   void ApplySubsystemOptions();
 
   // UI update
