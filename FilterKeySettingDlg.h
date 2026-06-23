@@ -118,7 +118,6 @@ class CFilterKeySettingDlg : public CDialogEx
   int  ResolveRawInputHotkeyId(UINT vk, UINT modifiers) const;
   bool HandleResolvedHotkeyId(UINT hotkey_id, bool from_raw_input);
   bool EnsureAdminGuardForOptionEnable(const CString& option_key, bool request_enable, bool previous_enabled);
-  bool EnsureAdminGuardOnStartup();
 
   // Layout / init
   void InitializePresetCount();

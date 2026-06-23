@@ -276,7 +276,7 @@ void DialogDebug::OnBnClickedCheckDbgMoveTracker()
   if (button && checked && !previous)
   {
     const CString option_key = KEY_ENABLE_MOUSE_MOVE_TRACKER;
-    const auto    prompt     = AdminGuard::PromptAdminRestartIfNeeded(this, &option_key);
+    const auto    prompt     = AdminGuard::PromptAdminRestartIfNeeded(this, option_key);
     if (prompt != AdminGuard::PromptResult::Proceed)
     {
       button->SetCheck(BST_UNCHECKED);
@@ -462,7 +462,7 @@ void DialogDebug::OnBnClickedCheckPresetOffProcess()
   if (check && checked && !previous)
   {
     const CString option_key = KEY_PROCESS_OFF_ENABLED;
-    const auto    prompt     = AdminGuard::PromptAdminRestartIfNeeded(this, &option_key);
+    const auto    prompt     = AdminGuard::PromptAdminRestartIfNeeded(this, option_key);
     if (prompt != AdminGuard::PromptResult::Proceed)
     {
       check->SetCheck(BST_UNCHECKED);
@@ -498,7 +498,7 @@ void DialogDebug::OnBnClickedCheckIfFullScreenGame()
   if (request_enable && !previous)
   {
     const CString option_key = KEY_IF_FULL_SCREEN_GAME;
-    const auto    prompt     = AdminGuard::PromptAdminRestartIfNeeded(this, &option_key);
+    const auto    prompt     = AdminGuard::PromptAdminRestartIfNeeded(this, option_key);
     if (prompt != AdminGuard::PromptResult::Proceed)
     {
       check->SetCheck(BST_UNCHECKED);

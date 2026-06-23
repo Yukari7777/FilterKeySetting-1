@@ -4,6 +4,7 @@
 #include "UserDefine.hpp"
 #include "UserFilterKey.hpp"
 #include "UserLanguage.hpp"
+#include <array>
 // clang-format on
 
 namespace AdminGuard {
@@ -51,50 +52,12 @@ bool IsAdminRequiredOptionKey(const CString& option_key)
   return false;
 }
 
-CString BuildEnabledOptionSummary()
+CString BuildPromptMessage(const CString& option_key)
 {
-  CString summary;
-  for (const auto& option : kAdminRequiredOptions)
-  {
-    if (GLOBAL_OPTION.getInteger(option.key, 0) == 0)
-      continue;
-
-    if (!summary.IsEmpty())
-      summary += _T("\r\n");
-
-    summary += _T("- ");
-    summary += Lang::T(option.label_ids);
-  }
-
-  return summary;
-}
-
-CString BuildPromptMessage(const CString* option_key)
-{
-  CString content;
-  if (option_key != nullptr)
-  {
-    CString label = FindOptionLabel(*option_key);
-    if (!label.IsEmpty())
-    {
-      content.Format(Lang::T(IDS_FMT_ADMIN_REQUIRED),
-                     static_cast<LPCTSTR>(label));
-    }
-  }
-
-  if (content.IsEmpty())
-  {
-    CString enabled = BuildEnabledOptionSummary();
-    if (!enabled.IsEmpty())
-    {
-      content = Lang::T(IDS_MSG_ADMIN_ENABLED_PREFIX);
-      content += enabled;
-    }
-    else
-    {
-      content = Lang::T(IDS_MSG_ADMIN_GENERIC);
-    }
-  }
+  const CString label = FindOptionLabel(option_key);
+  CString       content;
+  content.Format(Lang::T(IDS_FMT_ADMIN_REQUIRED),
+                 static_cast<LPCTSTR>(label));
 
   content += Lang::T(IDS_MSG_ADMIN_RESTART_SUFFIX);
 
@@ -162,45 +125,12 @@ HRESULT CALLBACK PromptCallback(HWND hwnd, UINT notification, WPARAM wParam, LPA
 
 }  // namespace
 
-const std::array<LPCTSTR, 7>& GetAdminRequiredOptionList()
-{
-  static const auto keys = []() {
-    std::array<LPCTSTR, kAdminRequiredOptions.size()> values = {};
-    for (size_t i = 0; i < kAdminRequiredOptions.size(); ++i)
-      values[i] = kAdminRequiredOptions[i].key;
-    return values;
-  }();
-  return keys;
-}
-
-bool IsAdminRequiredOptionEnabled(const CString& option_key)
-{
-  if (!IsAdminRequiredOptionKey(option_key))
-    return false;
-
-  return (GLOBAL_OPTION.getInteger(option_key, 0) != 0);
-}
-
-bool HasAnyAdminRequiredOptionEnabled()
-{
-  for (const auto& option : kAdminRequiredOptions)
-  {
-    if (GLOBAL_OPTION.getInteger(option.key, 0) != 0)
-      return true;
-  }
-
-  return false;
-}
-
-PromptResult PromptAdminRestartIfNeeded(CWnd* owner, const CString* option_key)
+PromptResult PromptAdminRestartIfNeeded(CWnd* owner, const CString& option_key)
 {
   if (FilterKey::IsProcessElevatedNow())
     return PromptResult::Proceed;
 
-  if (option_key != nullptr && !IsAdminRequiredOptionKey(*option_key))
-    return PromptResult::Proceed;
-
-  if (option_key == nullptr && !HasAnyAdminRequiredOptionEnabled())
+  if (!IsAdminRequiredOptionKey(option_key))
     return PromptResult::Proceed;
 
   const CString content = BuildPromptMessage(option_key);

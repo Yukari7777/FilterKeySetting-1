@@ -182,12 +182,6 @@ BOOL CFilterKeySettingDlg::OnInitDialog()
 
   AllowSingleInstanceActivateMessageIfElevated(GetSafeHwnd());
 
-  if (!EnsureAdminGuardOnStartup())
-  {
-    EndDialog(IDCANCEL);
-    return FALSE;
-  }
-
   FilterKey::BackupCurrentFilterKeysToOption();
 
   InitializePresetCount();
@@ -826,17 +820,11 @@ bool CFilterKeySettingDlg::EnsureAdminGuardForOptionEnable(const CString& option
   if (!request_enable || previous_enabled)
     return true;
 
-  const auto result = AdminGuard::PromptAdminRestartIfNeeded(this, &option_key);
+  const auto result = AdminGuard::PromptAdminRestartIfNeeded(this, option_key);
   if (result == AdminGuard::PromptResult::Proceed)
     return true;
 
   return false;
-}
-
-bool CFilterKeySettingDlg::EnsureAdminGuardOnStartup()
-{
-  const auto result = AdminGuard::PromptAdminRestartIfNeeded(this);
-  return (result == AdminGuard::PromptResult::Proceed);
 }
 
 void CFilterKeySettingDlg::RefreshPresetButtonCaption(const int preset)
