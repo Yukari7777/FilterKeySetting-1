@@ -15,10 +15,10 @@ bool InitializeOptionValues()
 
   // Global option
   {
-    res &= GLOBAL_OPTION.setInit(KEY_RESTORE_SETTING, true);
-    res &= GLOBAL_OPTION.setInit(KEY_MOVE_TO_TRAY, false);
+    res &= GLOBAL_OPTION.setInit(KEY_RESTORE_SETTING, false);
+    res &= GLOBAL_OPTION.setInit(KEY_MOVE_TO_TRAY, true);
     res &= GLOBAL_OPTION.setInit(KEY_DISABLE_HOTKEY, false);
-    res &= GLOBAL_OPTION.setInit(KEY_ENABLE_KEYBIND, false);
+    res &= GLOBAL_OPTION.setInit(KEY_ENABLE_KEYBIND, true);
     res &= GLOBAL_OPTION.setInit(KEY_ENABLE_TOGGLE_KEYBIND, false);
     res &= GLOBAL_OPTION.setInit(KEY_TOGGLE_HOTKEY, 0);
     res &= GLOBAL_OPTION.setInit(KEY_ENABLE_MOUSE_DBLCLICK_TRACKER, false);
@@ -72,12 +72,12 @@ bool InitializeOptionValues()
   };
 
   InitPreset(PRESET_OFF, Lang::T(IDS_PRESET_NAME_OFF), 500, 33);    // Rename Preset OFF
-  InitPreset(PRESET_OFF + 1, Lang::T(IDS_PRESET_NAME_ON), 90, 14);  // Rename Default Preset
+  InitPreset(PRESET_OFF + 1, Lang::T(IDS_PRESET_NAME_ON), 150, 1);  // Rename Default Preset
   for (int preset_number = 2; preset_number < PRESET_MAX_COUNT; ++preset_number)
   {
     CString title;
     title.Format(Lang::T(IDS_FMT_PRESET_DEFAULT_NAME), preset_number);
-    InitPreset(preset_number, title, 500, 33);
+    InitPreset(preset_number, title, 0, 1);
   }
 
   return res;
